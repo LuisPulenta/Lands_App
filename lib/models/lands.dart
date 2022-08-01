@@ -1,5 +1,5 @@
 //------------------------------ Lands ---------------------------------
-class Lands {
+class Land {
   Name? name;
   List<String>? tld;
   String? cca2;
@@ -18,7 +18,7 @@ class Lands {
   Translations? translations;
   List<int>? latlng;
   bool? landlocked;
-  int? area;
+  double? area;
   Demonyms? demonyms;
   String? flag;
   Maps? maps;
@@ -32,7 +32,7 @@ class Lands {
   CapitalInfo? capitalInfo;
   PostalCode? postalCode;
 
-  Lands(
+  Land(
       {this.name,
       this.tld,
       this.cca2,
@@ -65,9 +65,9 @@ class Lands {
       this.capitalInfo,
       this.postalCode});
 
-  Lands.fromJson(Map<String, dynamic> json) {
+  Land.fromJson(Map<String, dynamic> json) {
     name = json['name'] != null ? Name.fromJson(json['name']) : null;
-    tld = json['tld'].cast<String>();
+    tld = json['tld'] != null ? json['tld'].cast<String>() : null;
     cca2 = json['cca2'];
     ccn3 = json['ccn3'];
     cca3 = json['cca3'];
@@ -78,7 +78,7 @@ class Lands {
         ? Currencies.fromJson(json['currencies'])
         : null;
     idd = json['idd'] != null ? Idd.fromJson(json['idd']) : null;
-    capital = json['capital'].cast<String>();
+    capital = json['capital'] != null ? json['capital'].cast<String>() : null;
     altSpellings = json['altSpellings'].cast<String>();
     region = json['region'];
     subregion = json['subregion'];
@@ -286,7 +286,8 @@ class Idd {
 
   Idd.fromJson(Map<String, dynamic> json) {
     root = json['root'];
-    suffixes = json['suffixes'].cast<String>();
+    suffixes =
+        json['suffixes'] != null ? json['suffixes'].cast<String>() : null;
   }
 
   Map<String, dynamic> toJson() {
@@ -532,7 +533,7 @@ class Car {
   Car({this.signs, this.side});
 
   Car.fromJson(Map<String, dynamic> json) {
-    signs = json['signs'].cast<String>();
+    signs = json['signs'] != null ? json['signs'].cast<String>() : null;
     side = json['side'];
   }
 
@@ -571,7 +572,7 @@ class CapitalInfo {
   CapitalInfo({this.latlng});
 
   CapitalInfo.fromJson(Map<String, dynamic> json) {
-    latlng = json['latlng'].cast<double>();
+    latlng = json['latlng'] != null ? json['latlng'].cast<double>() : null;
   }
 
   Map<String, dynamic> toJson() {

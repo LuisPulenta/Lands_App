@@ -5,6 +5,9 @@ import 'package:lands_app/components/loader_component.dart';
 import 'package:lands_app/helpers/api_helper.dart';
 import 'package:lands_app/models/models.dart';
 import 'package:lands_app/screens/screens.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:custom_info_window/custom_info_window.dart';
 
 class LandsHomeScreen extends StatefulWidget {
   const LandsHomeScreen({Key? key}) : super(key: key);
@@ -30,6 +33,11 @@ class _LandsHomeScreenState extends State<LandsHomeScreen> {
   final bool _filterShowError = false;
   final TextEditingController _filterController = TextEditingController();
 
+  final Set<Marker> _markers = {};
+
+  final CustomInfoWindowController _customInfoWindowController =
+      CustomInfoWindowController();
+
 //*****************************************************************************
 //************************** INIT STATE ***************************************
 //*****************************************************************************
@@ -53,6 +61,11 @@ class _LandsHomeScreenState extends State<LandsHomeScreen> {
         appBar: AppBar(
           title: const Text('Lands'),
           centerTitle: true,
+          actions: <Widget>[
+            _landsFiltered.isEmpty
+                ? Container()
+                : IconButton(onPressed: _showMap, icon: const Icon(Icons.map)),
+          ],
         ),
         body: Center(
           child: _showLoader
@@ -449,6 +462,113 @@ class _LandsHomeScreenState extends State<LandsHomeScreen> {
           .compareTo(b.name!.common.toString().toLowerCase());
     });
 
+    var a = 1;
+
     setState(() {});
+  }
+
+//*****************************************************************************
+//************************** METODO SHOWMAP ***********************************
+//*****************************************************************************
+
+  void _showMap() {
+    if (_landsFiltered.isEmpty) {
+      return;
+    }
+
+    _markers.clear();
+
+    double latmin = 180.0;
+    double latmax = -180.0;
+    double longmin = 180.0;
+    double longmax = -180.0;
+    double latcenter = 0.0;
+    double longcenter = 0.0;
+
+    for (Land land in _landsFiltered) {
+      if (land.capitalInfo!.latlng != null) {
+        var lat = double.tryParse(land.capitalInfo!.latlng![0].toString()) ?? 0;
+        var long =
+            double.tryParse(land.capitalInfo!.latlng![1].toString()) ?? 0;
+
+        if (lat.toString().length > 3 && long.toString().length > 3) {
+          if (lat < latmin) {
+            latmin = lat;
+          }
+          if (lat > latmax) {
+            latmax = lat;
+          }
+          if (long < longmin) {
+            longmin = long;
+          }
+          if (long > longmax) {
+            longmax = long;
+          }
+
+          _markers.add(Marker(
+            markerId: MarkerId(land.name!.common.toString()),
+            position: LatLng(lat, long),
+            onTap: () {
+              _customInfoWindowController.addInfoWindow!(
+                  Container(
+                    padding: const EdgeInsets.all(5),
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.info),
+                        const SizedBox(
+                          width: 8.0,
+                        ),
+                        Expanded(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${land.name!.common.toString()}',
+                                style: const TextStyle(
+                                    fontSize: 14, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                '${land.region.toString()} - ${land.subregion.toString()}',
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                              Text(
+                                'Capital: ${land.capital![0].toString()}',
+                                style: const TextStyle(
+                                    fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  LatLng(lat, long));
+            },
+            icon: BitmapDescriptor.defaultMarker,
+          ));
+        }
+      }
+    }
+    latcenter = (latmin + latmax) / 2;
+    longcenter = (longmin + longmax) / 2;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => LandsMapScreen(
+          markers: _markers,
+          customInfoWindowController: _customInfoWindowController,
+          posicion: LatLng(latcenter, longcenter),
+        ),
+      ),
+    );
   }
 }

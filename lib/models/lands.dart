@@ -16,7 +16,7 @@ class Land {
   String? subregion;
   Languages? languages;
   Translations? translations;
-  List<int>? latlng;
+  List<double>? latlng;
   bool? landlocked;
   double? area;
   Demonyms? demonyms;
@@ -88,7 +88,7 @@ class Land {
     translations = json['translations'] != null
         ? Translations.fromJson(json['translations'])
         : null;
-    latlng = json['latlng'].cast<int>();
+    latlng = json['latlng'].cast<double>();
     landlocked = json['landlocked'];
     area = json['area'];
     demonyms =
@@ -246,12 +246,14 @@ class Currencies {
 
   Currencies.fromJson(Map<String, dynamic> json) {
     dKK = json['DKK'] != null ? DKK.fromJson(json['DKK']) : null;
+    dKK = json['ARS'] != null ? DKK.fromJson(json['ARS']) : null;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     if (dKK != null) {
       data['DKK'] = dKK!.toJson();
+      data['ARS'] = dKK!.toJson();
     }
     return data;
   }
